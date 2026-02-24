@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tale Weaver - Interactive AI Storytelling</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">Tale Weaver</h1>
+                <div class="header-actions">
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot status-dot--disconnected"></span>
+                        <span class="status-text">Not Configured</span>
+                    </div>
+                    <button class="btn btn--outline btn--sm" onclick="openSettings()" id="settingsBtn">
+                        ⚙️ Settings
+                    </button>
+                    <button class="btn btn--outline btn--sm home-btn hidden" onclick="goHome()">
+                        ← Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- API Configuration Banner -->
+    <div class="config-banner" id="configBanner">
+        <div class="container">
+            <div class="banner-content">
+                <p><strong>Welcome to Tale Weaver!</strong> Configure your OpenRouter API key to start creating AI-powered stories.</p>
+                <button class="btn btn--primary btn--sm" onclick="openSettings()">Configure Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal hidden" id="settingsModal">
+        <div class="modal-overlay" onclick="closeSettings()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>API Configuration</h3>
+                <button class="modal-close" onclick="closeSettings()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="apiKey">
+                        OpenRouter API Key
+                        <a href="https://openrouter.ai/keys" target="_blank" class="help-link">Get API Key</a>
+                    </label>
+                    <input type="password" class="form-control" id="apiKey" placeholder="sk-or-v1-..." />
+                    <small class="form-help">Your API key is stored only in memory and never sent to our servers.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="modelSelect">AI Model</label>
+                    <select class="form-control" id="modelSelect">
+                        <option value="">Select a model...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="temperature">Creativity Level</label>
+                    <div class="slider-container">
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.8" class="slider">
+                        <div class="slider-labels">
+                            <span>Conservative</span>
+                            <span>Creative</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="maxTokens">Response Length</label>
+                    <select class="form-control" id="maxTokens">
+                        <option value="150">Short (150 tokens)</option>
+                        <option value="250" selected>Medium (250 tokens)</option>
+                        <option value="400">Long (400 tokens)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn--outline" type="button" onclick="closeSettings()">Cancel</button>
+                <button class="btn btn--primary" type="button" onclick="saveSettings()">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Homepage -->
+    <main class="homepage" id="homepage">
+        <div class="container">
+            <div class="hero-section">
+                <h2 class="hero-title">Choose Your Adventure</h2>
+                <p class="hero-subtitle">
+                    Real AI ke saath apni unique story banao. Har decision aapki hai, har ending different hai.
+                </p>
+            </div>
+
+            <div class="genres-grid">
+                <div class="genre-card" data-genre="ceo">
+                    <div class="genre-card__content">
+                        <h3 class="genre-card__title">CEO Experience</h3>
+                        <p class="genre-card__description">Company ke CEO ban kar tough business decisions lo</p>
+                        <div class="genre-card__action">
+                            <button class="btn btn--primary">Start Story</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="genre-card" data-genre="detective">
+                    <div class="genre-card__content">
+                        <h3 class="genre-card__title">Detective Mystery</h3>
+                        <p class="genre-card__description">Mysteries solve karo aur culprit ko pakdo</p>
+                        <div class="genre-card__action">
+                            <button class="btn btn--primary">Start Story</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="genre-card" data-genre="college-diaries">
+                    <div class="genre-card__content">
+                        <h3 class="genre-card__title">College Diaries</h3>
+                        <p class="genre-card__description">College life mein love aur studies ka balance</p>
+                        <div class="genre-card__action">
+                            <button class="btn btn--primary">Start Story</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="genre-card" data-genre="rich-to-poor">
+                    <div class="genre-card__content">
+                        <h3 class="genre-card__title">Rich to Poor</h3>
+                        <p class="genre-card__description">Ameer insaan ban kar gareeb ka role play karo</p>
+                        <div class="genre-card__action">
+                            <button class="btn btn--primary">Start Story</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Story Interface -->
+    <div class="story-interface hidden" id="storyInterface">
+        <div class="container">
+            <div class="story-container">
+                <!-- Story Header -->
+                <div class="story-header">
+                    <div class="story-info">
+                        <h2 class="story-title" id="storyTitle">Story Title</h2>
+                        <div class="model-indicator" id="modelIndicator">
+                            <span class="model-name">AI Model</span>
+                        </div>
+                    </div>
+                    <div class="story-actions">
+                        <button class="btn btn--outline btn--sm" onclick="exportStory()">
+                            📁 Export
+                        </button>
+                        <button class="btn btn--outline btn--sm" onclick="restartStory()">
+                            🔄 Restart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages will be added here -->
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <!-- Choice Buttons -->
+                    <div class="choices-container hidden" id="choicesContainer">
+                        <!-- Choice buttons will be added here -->
+                    </div>
+
+                    <!-- Custom Input -->
+                    <div class="custom-input-container">
+                        <div class="input-toggle">
+                            <button class="btn btn--outline btn--sm" id="toggleInput" onclick="toggleInputMode()">
+                                <span id="toggleText">Write Custom Response</span>
+                            </button>
+                        </div>
+                        
+                        <div class="text-input hidden" id="textInput">
+                            <div class="input-group">
+                                <textarea 
+                                    class="form-control custom-textarea" 
+                                    id="customResponse" 
+                                    placeholder="Apna response yahan likho..."
+                                    rows="3"
+                                ></textarea>
+                                <button class="btn btn--primary send-btn" onclick="sendCustomResponse()" id="sendBtn">
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator hidden" id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">
+            <p id="loadingMessage">AI soch raha hai...</p>
+            <button class="btn btn--outline btn--sm" onclick="cancelGeneration()" id="cancelBtn">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Streaming Indicator -->
+    <div class="streaming-message hidden" id="streamingMessage">
+        <div class="message message--ai">
+            <div class="message__bubble">
+                <span id="streamingText"></span>
+                <span class="typing-cursor">|</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
